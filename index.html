@@ -480,11 +480,25 @@
         async function initiateScanning() {
             try {
                 const devices = await Html5Qrcode.getCameras();
+                if (!devices || devices.length === 0) {
+                    showMessage("Keine Kamera gefunden.", "error");
+                    return;
+                }
                 
-                const cameraNames = devices.map((d, i) => d.label || `Kamera ${i + 1}`).join('; ');
-                showMessage(`Gefundene Kameras (${devices.length}): ${cameraNames || 'Keine'}`, "info", 5000);
+                // Prefers the rear camera if one is detected by its label.
+                const rearCamera = devices.find(device => 
+                    /back|rear|rückseite/i.test(device.label)
+                );
 
-                if (devices && devices.length > 1) {
+                if (rearCamera) {
+                    // If a rear camera is found, use it directly.
+                    startScannerWithDevice(rearCamera.id);
+                } else if (devices.length === 1) {
+                    // If there is only one camera (typical for laptops), use it.
+                    startScannerWithDevice(devices[0].id);
+                } else {
+                    // Otherwise (multiple cameras without a clear label), show the selection.
+                    showMessage(`Gefundene Kameras (${devices.length}): Auswahl anzeigen...`, "info", 3000);
                     cameraSelectionDropdown.innerHTML = '';
                     devices.forEach((device, index) => {
                         const option = document.createElement('option');
@@ -493,11 +507,8 @@
                         cameraSelectionDropdown.appendChild(option);
                     });
                     cameraSelectionContainer.classList.remove('hidden');
-                } else if (devices && devices.length === 1) {
-                    startScannerWithDevice(devices[0].id);
-                } else {
-                    showMessage("Keine Kamera gefunden.", "error");
                 }
+
             } catch (err) {
                 console.error("Fehler beim Initialisieren der Kamera:", err);
                 if (err.name === "NotAllowedError" || String(err).includes("Permission denied")) {
