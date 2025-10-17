@@ -196,17 +196,6 @@
             font-size: 0.9rem;
             animation: fadeIn 1s ease-in-out;
         }
-        
-        #debug-uri {
-            margin-top: 20px;
-            font-size: 0.8rem;
-            color: #888;
-            word-break: break-all;
-            background-color: #222;
-            padding: 10px;
-            border-radius: 5px;
-            max-width: 400px;
-        }
 
         @keyframes fadeIn {
             from { opacity: 0; }
@@ -222,7 +211,6 @@
             <h1>Spotify QR Player</h1>
             <p>Für dieses Spiel wird ein Spotify Premium-Konto benötigt, um Musik direkt im Browser abspielen zu können.</p>
             <button id="login-button" class="spotify-button">Mit Spotify einloggen</button>
-            <div id="debug-uri"></div>
         </div>
 
         <div id="main-view" class="hidden app-container">
@@ -269,7 +257,6 @@
         const playPauseBtn = document.getElementById('play-pause-button');
         const scannerContainer = document.getElementById('scanner-container');
         const appContainer = document.getElementById('app-container');
-        const debugUriElement = document.getElementById('debug-uri');
         const cameraSelectionContainer = document.getElementById('camera-selection-container');
         const cameraSelectionDropdown = document.getElementById('camera-selection-dropdown');
         const startScanSelectionBtn = document.getElementById('start-scan-selection-button');
@@ -296,8 +283,6 @@
         };
 
         window.onload = async () => {
-            debugUriElement.innerHTML = `<strong>Für Spotify Dashboard:</strong><br>${REDIRECT_URI}`;
-
             if (window.location.protocol === "file:") {
                 document.body.innerHTML = `<div class="app-container config-error"><h1>Fehler: Lokale Datei</h1><p>Diese App kann nicht als lokale Datei (file://) ausgeführt werden. Bitte verwenden Sie einen lokalen Webserver (z.B. "Live Server" für VS Code) oder laden Sie die Datei auf einen Webhost hoch.</p></div>`;
                 return;
