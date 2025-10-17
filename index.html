@@ -3,13 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Spotify QR Player</title>
+    <title>Riffle</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-bg: #121212;
-            --secondary-bg: #1DB954;
+            --primary-bg: #000000;
             --text-color: #FFFFFF;
-            --button-bg: #282828;
+            --subtle-text-color: #b3b3b3;
+            --button-gradient: linear-gradient(45deg, #F857A6, #FF5858);
+            --button-hover-gradient: linear-gradient(45deg, #f96cb1, #ff6b6b);
+            --player-button-bg: #282828;
             --error-color: #f44336;
             --info-color: #2E77D0;
         }
@@ -20,7 +25,7 @@
             padding: 0;
             background-color: var(--primary-bg);
             color: var(--text-color);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             overflow: hidden;
             touch-action: none; /* Verhindert das Scrollen durch Gesten */
         }
@@ -41,32 +46,40 @@
             text-align: center;
         }
 
+        .login-view #logo-img {
+            max-width: 250px;
+            margin-bottom: 2rem;
+            height: auto;
+        }
+
         .login-view p, .config-error p {
             max-width: 300px;
-            margin: 20px auto;
-            color: #b3b3b3;
-            line-height: 1.5;
+            margin: 0 auto 2rem auto;
+            color: var(--subtle-text-color);
+            line-height: 1.6;
         }
 
         .spotify-button {
-            background-color: var(--secondary-bg);
+            background: var(--button-gradient);
             color: var(--text-color);
             border: none;
             border-radius: 50px;
-            padding: 15px 30px;
-            font-size: 1.2rem;
+            padding: 15px 35px;
+            font-size: 1.1rem;
             font-weight: bold;
             cursor: pointer;
             text-decoration: none;
             display: inline-block;
-            transition: transform 0.1s ease-in-out, background-color 0.2s;
-            user-select: none; /* Verhindert Textmarkierung auf Mobilgeräten */
-            -webkit-tap-highlight-color: transparent; /* Entfernt den blauen Kasten bei Berührung */
+            transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.2s ease;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            box-shadow: 0 4px 20px rgba(248, 87, 166, 0.25);
         }
 
         .spotify-button:hover, .spotify-button:active {
-            background-color: #1ed760;
+            background: var(--button-hover-gradient);
             transform: scale(1.05);
+            box-shadow: 0 6px 25px rgba(255, 88, 88, 0.3);
         }
         
         #initial-scan-button {
@@ -85,7 +98,7 @@
         #play-pause-button {
             width: 100px;
             height: 100px;
-            background-color: var(--button-bg);
+            background-color: var(--player-button-bg);
             border: none;
             border-radius: 50%;
             display: flex;
@@ -93,6 +106,7 @@
             align-items: center;
             cursor: pointer;
             transition: transform 0.1s ease-in-out;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
         }
         
         #play-pause-button:active {
@@ -124,6 +138,7 @@
             max-width: 500px;
             border-radius: 16px;
             overflow: hidden;
+            border: 2px solid rgba(255, 255, 255, 0.1);
         }
         
         #camera-selection-view {
@@ -137,6 +152,7 @@
         
         #camera-selection-view h2 {
             margin-top: 0;
+            font-weight: 700;
         }
         
         #camera-selection-dropdown {
@@ -160,7 +176,11 @@
         }
         
         .secondary-button {
-             background-color: var(--button-bg);
+             background: #333;
+             box-shadow: none;
+        }
+        .secondary-button:hover {
+            background: #444;
         }
 
         #feedback-message {
@@ -175,6 +195,7 @@
             opacity: 0;
             transition: opacity 0.3s ease;
             pointer-events: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
         
         #feedback-message.show {
@@ -208,7 +229,7 @@
     <div id="app-container" class="app-container">
         
         <div id="login-view">
-            <h1>Spotify QR Player</h1>
+            <img id="logo-img" src="https://placehold.co/400x150/000000/FFFFFF?text=Riffle" alt="Riffle Logo">
             <p>Für dieses Spiel wird ein Spotify Premium-Konto benötigt, um Musik direkt im Browser abspielen zu können.</p>
             <button id="login-button" class="spotify-button">Mit Spotify einloggen</button>
         </div>
@@ -325,7 +346,7 @@
         function setupSpotifyPlayer() {
             if (spotifyPlayer) return;
             spotifyPlayer = new Spotify.Player({
-                name: 'Spotify QR Player',
+                name: 'Riffle',
                 getOAuthToken: cb => { cb(accessToken); }
             });
             spotifyPlayer.addListener('ready', ({ device_id }) => { deviceId = device_id; });
@@ -483,7 +504,6 @@
                     startScannerWithDevice(devices[0].id);
                 } else {
                     // Otherwise (multiple cameras without a clear label), show the selection.
-                    showMessage(`Gefundene Kameras (${devices.length}): Auswahl anzeigen...`, "info", 3000);
                     cameraSelectionDropdown.innerHTML = '';
                     devices.forEach((device, index) => {
                         const option = document.createElement('option');
