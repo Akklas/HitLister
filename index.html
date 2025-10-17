@@ -452,7 +452,6 @@
         async function sha256(plain) {
             const encoder = new TextEncoder();
             const data = encoder.encode(plain);
-            // KORREKTE FUNKTION: 'SHA-256'
             return window.crypto.subtle.digest('SHA-256', data);
         }
 
@@ -622,6 +621,9 @@
         function handleSwipe() {
             const deltaX = touchEndX - touchStartX;
             if (Math.abs(deltaX) > SWIPE_THRESHOLD) {
+                if (spotifyPlayer && isPlaying) {
+                    spotifyPlayer.pause();
+                }
                 initiateScanning();
             }
         }
